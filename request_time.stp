@@ -1,7 +1,7 @@
 #! /usr/bin/env stap
 /*
- * func_time_stats.stp
- * usage: func_time_stats.stp function_probe
+ * request_time.stp
+ * usage: request_time.stp
  */
 
 global start, intervals

@@ -1,0 +1,69 @@
+#! /usr/bin/env stap
+/*
+ * func_time_stats.stp
+ * usage: func_time_stats.stp function_probe
+ */
+
+global start, intervals
+
+global counter
+
+/* probe process("/usr/lib/libfdcore.so.1.2.0").function("do_send") */ 
+/*
+   probe process("/usr/lib/libfdcore.so.1.2.0").statement("*@p_out.c:70") 
+   {
+   printf ("do_send \n")
+   }
+
+   semantic error: process return probes not available with inode-based uprobes while resolving probe point process("/usr/lib/libfdcore.so.1.2.0").function("fd_p_sr_store").return
+   probe process("/usr/lib/libfdcore.so.1.2.0").function("fd_p_sr_store").return
+   {
+   t = gettimeofday_us() 
+   }
+ */
+
+
+probe process("/usr/lib/libfdcore.so").function("fd_p_sr_fetch") 
+{
+	/* printf ("hbh=%d\n", $hbh) */
+	t = gettimeofday_us()
+	old_t = start[$hbh]
+	if (old_t) { 
+		/* printf("%d\n", t -old_t) */
+		intervals <<< t - old_t
+		delete start[$hbh]
+	} else {
+		/* printf("no old data\n") */	
+	}
+}
+
+probe process("/usr/lib/libfdcore.so").function("fd_p_sr_store") 
+{
+	/* printf ("hbhloc=%d\n", $hbhloc[0]) */
+	start[$hbhloc[0]] = gettimeofday_us()
+	counter = counter + 1
+	if (counter > 5000) {
+		print (".")
+		counter = 0
+	}
+}
+
+/* probe process("/usr/lib/libfdcore.so").function("fd_p_sr_store") */ 
+/* { */
+/* 	printf ("hbhloc=%d\n", $hbhloc[0]) */
+/* 	start[$hbhloc[0]] = gettimeofday_us() */
+/* } */
+
+probe begin
+{
+	printf ("request time statistics.")
+	counter = 1
+}
+
+probe end
+{
+	printf("\nintervals min:%dus avg:%dus max:%dus count:%d\n",
+			@min(intervals), @avg(intervals), @max(intervals),
+			@count(intervals))
+	print(@hist_log(intervals));
+}

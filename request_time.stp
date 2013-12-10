@@ -5,22 +5,7 @@
  */
 
 global start, intervals
-
 global counter
-
-/* probe process("/usr/lib/libfdcore.so.1.2.0").function("do_send") */ 
-/*
-   probe process("/usr/lib/libfdcore.so.1.2.0").statement("*@p_out.c:70") 
-   {
-   printf ("do_send \n")
-   }
-
-   semantic error: process return probes not available with inode-based uprobes while resolving probe point process("/usr/lib/libfdcore.so.1.2.0").function("fd_p_sr_store").return
-   probe process("/usr/lib/libfdcore.so.1.2.0").function("fd_p_sr_store").return
-   {
-   t = gettimeofday_us() 
-   }
- */
 
 
 probe process("/usr/lib/libfdcore.so").function("fd_p_sr_fetch") 
@@ -47,12 +32,6 @@ probe process("/usr/lib/libfdcore.so").function("fd_p_sr_store")
 		counter = 0
 	}
 }
-
-/* probe process("/usr/lib/libfdcore.so").function("fd_p_sr_store") */ 
-/* { */
-/* 	printf ("hbhloc=%d\n", $hbhloc[0]) */
-/* 	start[$hbhloc[0]] = gettimeofday_us() */
-/* } */
 
 probe begin
 {

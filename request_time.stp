@@ -7,6 +7,16 @@
 global start, intervals
 global counter
 
+probe process("/usr/lib/libfdcore.so").function("fd_p_sr_store") 
+{
+	/* printf ("hbhloc=%d\n", $hbhloc[0]) */
+	start[$hbhloc[0]] = gettimeofday_us()
+	counter = counter + 1
+	if (counter > 5000) {
+		print (".")
+		counter = 0
+	}
+}
 
 probe process("/usr/lib/libfdcore.so").function("fd_p_sr_fetch") 
 {
@@ -22,16 +32,6 @@ probe process("/usr/lib/libfdcore.so").function("fd_p_sr_fetch")
 	}
 }
 
-probe process("/usr/lib/libfdcore.so").function("fd_p_sr_store") 
-{
-	/* printf ("hbhloc=%d\n", $hbhloc[0]) */
-	start[$hbhloc[0]] = gettimeofday_us()
-	counter = counter + 1
-	if (counter > 5000) {
-		print (".")
-		counter = 0
-	}
-}
 
 probe begin
 {

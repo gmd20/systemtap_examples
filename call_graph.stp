@@ -1,0 +1,30 @@
+// stap -v call_graph.stp  ssh
+
+function is_this:long(name:string)
+{
+	return isinstr(name, @1)
+}
+
+probe  kernel.function("*@net/socket.c").call
+{
+	if (is_this(execname()))
+		printf("%s --> %s\n", thread_indent(4), probefunc())
+}
+
+probe  kernel.function("*@net/socket.c").return
+{
+	if (is_this(execname()))
+		printf("%s <-- %s\n", thread_indent(-4), probefunc())
+}
+
+probe  kernel.function("*@net/ipv4/tcp_input.c").call
+{
+	if (is_this(execname()))
+		printf("%s --> %s\n", thread_indent(4), probefunc())
+}
+
+probe  kernel.function("*@net/ipv4/tcp_input.c").return
+{
+	if (is_this(execname()))
+		printf("%s <-- %s\n", thread_indent(-4), probefunc())
+}

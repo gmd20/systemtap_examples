@@ -1,0 +1,37 @@
+#! /usr/bin/env stap
+
+probe kernel.function("uprobe_register"){
+	print ("uprobe_regeister is called\n")
+}
+
+probe kernel.function("__replace_page"){
+	printf ("_______________replace_page  addr=%d\n", $addr)
+		print_backtrace();
+	printf ("_______________\n")
+}
+
+probe kernel.function("prepare_uprobe"){
+	printf ("prepare_uprobe vaddr=%d\n", $vaddr)
+}
+
+probe kernel.function("remove_breakpoint"){
+	printf ("remove_breakpoint\n")
+}
+
+probe kernel.function("unapply_uprobe"){
+	printf ("unapply_uprobe\n")
+}
+
+/* probe kernel.function("uprobe_notify_resume"){ */
+/* 	printf ("uprobe_notify_resume ip=%d\n", $regs->ip) */
+/* } */
+
+/* probe kernel.function("handle_swbp"){ */
+/* 	printf ("handle_swbp ip=%d\n", $regs->ip) */
+/* } */
+
+/* probe kernel.function("handler_chain"){ */
+/* 	if ($uprobe->consumers) { */
+/* 		printf ("handler_chain %p\n", $uprobe->consumers->handler) */
+/* 	} */
+/* } */

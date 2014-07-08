@@ -1,0 +1,29 @@
+#! /usr/bin/env stap
+
+/* probe process("/usr/lib/libHTTP.so").function("AppInit") { */
+probe syscall.exit {      //这个可以拦截exit 系统调用，但没法打印用户调用栈
+/* probe process("/usr/bin/testapp").syscall{ */     //这个只能所有的syscall
+/* probe process("/usr/bin/testapp").syscall.return{ */ 
+/* probe process("/usr/bin/testapp").library("libc.so.6").function("malloc"){ */// 这个正常
+/* probe process("/usr/bin/testapp").library("libc.so.6").function("exit"){ */ // 这个好像如果是在子线程中就不正常
+/* probe process("/usr/bin/testapp").library("libc.so.6").function("__run_exit_handlers"){ */ //使用 __run_exit_handlers 比exit要好，好像exit有时不起作用。
+/* probe process("/home/bright/test/clock_gettime_test").library("libc.so.6").function("exit"){ */ 
+/* probe process("/usr/bin/cee").library("libc.so.6").function("abort"){ */  //c++ 未捕获异常不正常退出可以拦截abort ？ 
+ /* probe process("/usr/bin/cee").library("/lib/i386-linux-gnu/i686/cmov/libc-2.13.so").function("__run_exit_handlers"){ */
+  if (execname() == "testapp") {  //可以判断程序名字
+    printf ("pid=%d , exename=%s, cmdline=%s\n", pid(), execname(), cmdline_str())  //打印详细的命令行参数
+    /* print_usyms(ubacktrace()) */
+    print_ubacktrace()             //和上面一句等价，打印用户调用栈
+    print("-----------\n")
+  }
+}
+
+probe begin
+{
+  printf ("\n-----------begin--------------\n")
+}
+
+probe end
+{
+  printf("\n------------end----------------\n")
+}

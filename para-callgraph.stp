@@ -23,5 +23,5 @@ probe $2.return {
 probe $1.call   { trace(1, $$parms) }
 probe $1.return { trace(-1, $$return) }
 
-# 调用的例子第一个参数是需要记录的函数。第二个参数是触发点。
-#stap para-callgraph.stp 'kernel.function("*@fs/*.c")' 'kernel.function("sys_read")':
+// 调用的例子第一个参数是需要记录的函数。第二个参数是触发点。
+// stap para-callgraph.stp 'kernel.function("*@fs/*.c")' 'kernel.function("sys_read")':

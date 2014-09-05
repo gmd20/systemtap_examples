@@ -1,0 +1,25 @@
+#! /usr/bin/env stap
+
+/*
+ stap -x 15948 unix_domain_socket.stp
+*/
+
+probe begin
+{
+  printf("Start unix domain socket  Probing.....\n\n")
+}
+
+probe kernel.function("unix_stream_sendmsg")
+{
+  /* if  (tid() == ) { */
+  if  (pid() == target()) {
+    flags = $msg->msg_flags;
+    /* #define MSG_DONTWAIT    0x40   Nonblocking io */
+    if (flags & 0x40) {
+      printf(" non block \n")
+    } else {
+      printf(" block \n")
+      exit()
+    }
+  }
+}

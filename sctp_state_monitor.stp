@@ -1,0 +1,91 @@
+#! /usr/bin/env stap
+
+probe begin
+{
+  printf("Start SCTP state monitor Probing.....\n\n")
+}
+
+probe module("sctp").function("sctp_add_cmd_sf")
+{
+  printf ("            sctp_add_cmd_sf verb= %d\n", $verb)
+  /* print_backtrace() */
+
+  if (0) {
+
+  if ($verb == 3)  // SCTP_CMD_NEW_STATE
+  {
+    printf("sctp_add_cmd_sf: seq %p, new_state= %d\n",$seq, $obj->state)
+    printf("kernel backtrace:\n")
+    print_backtrace()
+  }
+
+  if ($verb == 39)  // SCTP_CMD_ASSOC_FAILED
+  /* if ($verb == 7)  // SCTP_CMD_INIT_FAILED */
+  {
+    printf("sctp_add_cmd_sf: seq %p, SCTP_CMD_ASSOC_FAILED\n",$seq)
+    printf("kernel backtrace:\n")
+    print_backtrace()
+  }
+
+  }
+}
+
+probe module("sctp").function("sctp_cmd_new_state")
+{
+  printf("sctp_cmd_new_state: asoc %p,assoc_id=%d,  port=%d, new_state= %d\n",$asoc, $asoc->assoc_id,  $asoc->peer->port,  $state)
+
+  /* printf("backtrace:\n%s\n\n", backtrace()) */
+
+  /* printf("kernel backtrace:\n") */
+  /* print_backtrace() */
+  /* printf("use space backtrace:\n") */
+  /* print_ubacktrace() */
+}
+
+
+probe module("sctp").function("sctp_recvmsg").return
+{
+  printf("sctp_recvmsg:  return=%d\n", $return)
+}
+
+probe module("sctp").function("sctp_shutdown")
+{
+  printf("sctp_shutdown: \n")
+}
+
+probe module("sctp").function("sctp_close")
+{
+  printf("sctp_close: \n")
+}
+
+probe module("sctp").function("sctp_sf_ootb")
+{
+  printf("sctp_sf_outb: asoc=%p\n", $asoc)
+}
+
+probe module("sctp").function("sctp_association_destroy")
+{
+  printf("sctp_association_destroy: asoc=%p\n", $asoc)
+}
+
+probe module("sctp").function("sctp_association_free")
+{
+  printf("sctp_association_free asoc=%p\n", $asoc)
+}
+
+probe module("sctp").function("sctp_association_new").return
+{
+  printf("sctp_association_new: asoc=%p\n", $return)
+}
+
+probe module("sctp").function("sctp_do_sm")
+{
+  printf("sctp_do_sm asoc=%p, state=%d\n", $asoc, $state)
+}
+/*
+probe module("sctp").function("sctp_make_abort")
+{
+  printf("sctp_make_abort asoc=%p\n", $asoc)
+}
+
+*/

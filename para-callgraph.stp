@@ -25,3 +25,4 @@ probe $1.return { trace(-1, $$return) }
 
 // 调用的例子第一个参数是需要记录的函数。第二个参数是触发点。
 // stap para-callgraph.stp 'kernel.function("*@fs/*.c")' 'kernel.function("sys_read")':
+// stap para-callgraph.stp  'process("/usr/lib/libtest.so").function("*")' 'process("/usr/lib/libtest.so").function("TestInit")'

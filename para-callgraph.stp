@@ -24,5 +24,10 @@ probe $1.call   { trace(1, $$parms) }
 probe $1.return { trace(-1, $$return) }
 
 // 调用的例子第一个参数是需要记录的函数。第二个参数是触发点。
+// https://sourceware.org/systemtap/langref/Probe_points.html#SECTION00051300000000000000
+// probe_point = <function name@filename:line_number>
 // stap para-callgraph.stp 'kernel.function("*@fs/*.c")' 'kernel.function("sys_read")':
 // stap para-callgraph.stp  'process("/usr/lib/libtest.so").function("*")' 'process("/usr/lib/libtest.so").function("TestInit")'
+// stap para-callgraph.stp  'process("/usr/lib/libtest.so").function("*@*cpp")' 'process("/usr/lib/libtest.so").function("TestInit")'
+// stap para-callgraph.stp  'process("/usr/lib/libtest.so").function("*@*cpp:*")' 'process("/usr/lib/libtest.so").function("TestInit")'
+// stap para-callgraph.stp  'process("/usr/lib/libtest.so").function("*@*cpp:1-200")' 'process("/usr/lib/libtest.so").function("TestInit")'

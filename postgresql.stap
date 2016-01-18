@@ -1,0 +1,39 @@
+# 查看postgresql的内置探针
+# stap -l 'process("/home/pg93/pgsql9.3.1/bin/postgres").mark("**")'
+
+global count, abyrvalg, timings, sec_timings
+
+probe process("/usr/pgsql-9.4/bin/postgres").function("LockRelationForExtension")
+{
+    abyrvalg[$relation, tid()] = gettimeofday_ms()
+    count++
+}
+
+probe process("/usr/pgsql-9.4/bin/postgres").function("UnlockRelationForExtension")
+{
+    p = tid(); t = gettimeofday_ms()
+    if ( [$relation,p] in abyrvalg) {
+        tmp = t - abyrvalg[$relation,p]
+        timings <<< tmp
+        sec_timings[gettimeofday_s()] <<< tmp
+        delete abyrvalg[$relation,p]
+    }
+#   if (tmp >1000)
+#       printf ("[%s] Relation %d for extension has been locked by pid %d for %d ms\n", ctime(gettimeofday_s()), $relation->rd_id, pid(), tmp)
+}
+
+
+probe timer.s(1)
+{
+    tmp = gettimeofday_s()-1
+    if (tmp in sec_timings) {
+        printf("[%s] Min: %d ms; Max: %d ms; Avg: %d ms\n", ctime(tmp), @min(sec_timings[tmp]), @max(sec_timings[tmp]), @avg(sec_timings[tmp]))
+        delete sec_timings[tmp]
+    }
+}
+
+probe end
+{
+    printf("\nLockRelationForExtension has been called %d times\n", count)
+    printf("Min: %d ms\nMax: %d ms\nAvg: %d ms\n", @min(timings), @max(timings), @avg(timings))
+}
